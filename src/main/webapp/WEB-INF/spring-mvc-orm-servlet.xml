@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd
+    ">
+    <tx:annotation-driven/>
+    
+    <context:component-scan base-package="spring.controller,spring.dao,spring.entities,spring.services"></context:component-scan>
+    
+    
+	
+    
+    
+    <!-- DataSource Bean -->
+    <bean
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		name="dataSource">
+		<property name="driverClassName"
+	value="com.mysql.cj.jdbc.Driver" />
+		<property name="url"
+			value="jdbc:mysql://localhost:3306/springjdbc" />
+		<property name="username" value="user" />
+		<property name="password" value="pass" />
+
+	</bean>
+    
+    
+    <!-- Session Factory Bean -->
+    <bean
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
+		name="sessionFactory">
+		<property name="dataSource" ref="dataSource" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+		<property name="annotatedClasses">
+			<list>
+				<value>spring.entities.User</value>
+			</list>
+		</property>
+
+	</bean>
+    
+    
+    <!-- Hibernate Template Bean -->
+    <bean class="org.springframework.orm.hibernate5.HibernateTemplate"
+		name="hibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	<!-- UserDaoImpl Bean -->
+	<bean class="spring.dao.UserDaoImpl" name="userDao">
+		<property name="hibernateTemplate" ref="hibernateTemplate"></property>
+	</bean>
+	
+	<bean class="spring.services.UserServiceImpl" name="userService">
+		<property name="userDao" ref="userDao"></property>
+	</bean>
+
+
+	<!-- View Resolver Bean -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" name="viewResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+    
+    <bean class="org.springframework.orm.hibernate5.HibernateTransactionManager" name="transactionManager">
+    	<property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+    
+</beans>
